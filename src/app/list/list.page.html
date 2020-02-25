@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>list</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-list>
+          <ion-item *ngFor="let exercise of loadedExercises">
+            <ion-label>
+              <h2 style="text-align: center;">{{ exercise.name}}</h2>
+              <div style="display: flex; justify-content: space-around;">
+                <p>{{ exercise.weigth }}</p>
+                <p>{{ exercise.sets }}</p>
+                <p>{{ exercise.reps }}</p>
+              </div>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>
