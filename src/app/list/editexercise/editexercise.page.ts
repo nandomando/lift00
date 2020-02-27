@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ExercisesService } from 'src/app/exercises.service';
-import { ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NavController, LoadingController } from '@ionic/angular';
 import { Exercise } from 'src/app/exercise.model';
 import { Subscription } from 'rxjs';
 
@@ -20,7 +20,9 @@ export class EditexercisePage implements OnInit {
   constructor(
     private exerciseService: ExercisesService,
     private route: ActivatedRoute,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private router: Router,
+    private loadingCtrl: LoadingController
     ) { }
 
   ngOnInit() {
@@ -48,7 +50,22 @@ export class EditexercisePage implements OnInit {
     if (!this.form.valid) {
       return;
     }
-    console.log(this.form);
+    this.loadingCtrl.create({
+      message: 'Updating exercise...'
+    }).then(loadingEl => {
+      loadingEl.present();
+      this.exerciseService.updateExe(
+        this.exercise.id,
+        this.form.value.name,
+        this.form.value.weigth,
+        this.form.value.sets,
+        this.form.value.reps,
+      ).subscribe(() => {
+        loadingEl.dismiss();
+        this.form.reset();
+        this.router.navigate(['/tabs/tab/list']);
+      });
+    });
   }
 
 }

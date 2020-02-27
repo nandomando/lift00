@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Exercise } from './exercise.model';
-import { take, map } from 'rxjs/operators';
+import { take, map, tap } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
 
 @Injectable({
@@ -72,5 +72,30 @@ export class ExercisesService {
         this._exercises.next(exercise.concat(newExercise));
       });
 
+  }
+
+  updateExe(
+    exerciseId: string,
+    name: string,
+    weigth: number,
+    sets: number,
+    reps: number
+  ) {
+    return this.exercises.pipe(
+      take(1),
+      tap(exercises => {
+      const updatedExerciseIndex = exercises.findIndex(ex => ex.id === exerciseId);
+      const updatedExercises = [...exercises];
+      const oldExe = updatedExercises[updatedExerciseIndex];
+      updatedExercises[updatedExerciseIndex] = new Exercise(
+        oldExe.id,
+        name,
+        weigth,
+        sets,
+        reps,
+        oldExe.userId
+      );
+      this._exercises.next(updatedExercises);
+    }));
   }
 }

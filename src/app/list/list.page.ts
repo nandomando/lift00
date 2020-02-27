@@ -12,7 +12,7 @@ import { AuthService } from '../auth/auth.service';
   styleUrls: ['./list.page.scss'],
 })
 export class ListPage implements OnInit, OnDestroy {
-  exercise: Exercise;
+
   loadedExercises: Exercise[];
   private exerciseDestroySub: Subscription;
 
