@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ExercisesService } from '../exercises.service';
 import { Router } from '@angular/router';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-addexercise',
@@ -11,7 +12,11 @@ import { Router } from '@angular/router';
 export class AddexercisePage implements OnInit {
 
   form: FormGroup;
-  constructor(private exercisesService: ExercisesService, private router: Router) { }
+  constructor(
+    private exercisesService: ExercisesService,
+    private router: Router,
+    private loadingCtrl: LoadingController
+    ) { }
 
   ngOnInit() {
     this.form = new FormGroup({
@@ -26,14 +31,22 @@ export class AddexercisePage implements OnInit {
     if (!this.form.valid) {
       return;
     }
-    this.exercisesService.addExercise(
-      this.form.value.name,
-      +this.form.value.weigth,
-      +this.form.value.sets,
-      +this.form.value.reps,
-    );
-    this.form.reset();
-    this.router.navigate(['/', 'tabs', 'tab', 'list']);
+    this.loadingCtrl.create({
+      message: 'Creating Exercise...'
+    }).then(loadingEl => {
+      loadingEl.present();
+      this.exercisesService.addExercise(
+        this.form.value.name,
+        +this.form.value.weigth,
+        +this.form.value.sets,
+        +this.form.value.reps,
+      )
+      .subscribe(() => {
+        loadingEl.dismiss();
+        this.form.reset();
+        this.router.navigate(['/', 'tabs', 'tab', 'list']);
+      });
+    });
   }
 
 }

@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Exercise } from './exercise.model';
 import { take, map, tap } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +42,10 @@ export class ExercisesService {
     return this._exercises.asObservable();
   }
 
-  constructor(private authService: AuthService) { }
+  constructor(
+    private authService: AuthService,
+    private http: HttpClient,
+    ) { }
 
 
   getExercise(id: string) {
@@ -67,10 +71,16 @@ export class ExercisesService {
       reps,
       this.authService.userId
     );
-    this.exercises.pipe(
-      take(1)).subscribe(exercise => {
-        this._exercises.next(exercise.concat(newExercise));
-      });
+    return this.http
+      .post('https://lift00.firebaseio.com/exercises.json', 
+        { ...newExercise, id: null})
+        .pipe(tap(resData => {
+          console.log(resData);
+      }));
+    // return this.exercises.pipe(
+    //   take(1)).subscribe(exercise => {
+    //     this._exercises.next(exercise.concat(newExercise));
+    //   });
 
   }
 
