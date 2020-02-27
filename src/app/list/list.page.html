@@ -27,8 +27,10 @@
             </ion-item>
             <ion-item-options>
               <ion-item-option color="secondary" (click)="onEdit(exercise.id, slidingItem)">
-                Edit
                 <ion-icon name="create" slot="icon-only"></ion-icon>
+              </ion-item-option>
+              <ion-item-option color="danger" (click)="onCancelEx(exercise.id, slidingItem)">
+                <ion-icon name="trash" slot="icon-only"></ion-icon>
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>

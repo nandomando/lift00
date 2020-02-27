@@ -98,4 +98,13 @@ export class ExercisesService {
       this._exercises.next(updatedExercises);
     }));
   }
+
+  cancelEx(exerciseId: string) {
+    return this.exercises.pipe(
+      take(1),
+      tap(exercises => {
+        this._exercises.next(exercises.filter(element => element.id !== exerciseId));
+      })
+    );
+  }
 }
