@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { ExercisesService } from '../exercises.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-addexercise',
@@ -9,7 +11,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 export class AddexercisePage implements OnInit {
 
   form: FormGroup;
-  constructor() { }
+  constructor(private exercisesService: ExercisesService, private router: Router) { }
 
   ngOnInit() {
     this.form = new FormGroup({
@@ -21,7 +23,17 @@ export class AddexercisePage implements OnInit {
   }
 
   onCreateExercise() {
-    console.log(this.form.value.name);
+    if (!this.form.valid) {
+      return;
+    }
+    this.exercisesService.addExercise(
+      this.form.value.name,
+      +this.form.value.weigth,
+      +this.form.value.sets,
+      +this.form.value.reps,
+    );
+    this.form.reset();
+    this.router.navigate(['/', 'tabs', 'tab', 'list']);
   }
 
 }

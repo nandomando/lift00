@@ -4,6 +4,7 @@ export class Exercise {
         public name: string,
         public weigth: number,
         public sets: number,
-        public reps: number
+        public reps: number,
+        public userId: string
     ) {}
 }

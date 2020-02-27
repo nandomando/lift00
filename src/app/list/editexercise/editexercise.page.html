@@ -1,9 +1,72 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>editexercise</ion-title>
+    <ion-buttons slot="start" >
+      <ion-back-button defaultHref="/tabs/tab/list"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ exercise.name}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
 
+  <form [formGroup]="form">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label position="floating">Name</ion-label>
+            <ion-input
+            formControlName="name"
+              type="text"
+            ></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label position="floating">Weight</ion-label>
+            <ion-input
+            formControlName="weigth"
+              type="number"
+            ></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label position="floating">Sets</ion-label>
+            <ion-input
+              formControlName="sets"
+              type="number"
+            ></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label position="floating">Reps</ion-label>
+            <ion-input
+              formControlName="reps"
+              type="number"
+            ></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-button
+            type="submit"
+            expand="block"
+            color="primary"
+            (click)="update()"
+            [disabled]="!form.valid"
+          >Update</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
 </ion-content>
+

@@ -9,7 +9,7 @@ const routes: Routes = [
     component: ListPage
   },
   {
-    path: 'editexercise',
+    path: 'edit/:exerciseId',
     loadChildren: () => import('./editexercise/editexercise.module').then( m => m.EditexercisePageModule)
   }
 ];
