@@ -104,23 +104,29 @@ export class ExercisesService {
     sets: number,
     reps: number
   ) {
+    let updatedExercises: Exercise[];
     return this.exercises.pipe(
       take(1),
-      tap(exercises => {
-      const updatedExerciseIndex = exercises.findIndex(ex => ex.id === exerciseId);
-      const updatedExercises = [...exercises];
-      const oldExe = updatedExercises[updatedExerciseIndex];
-      updatedExercises[updatedExerciseIndex] = new Exercise(
-        oldExe.id,
-        name,
-        weigth,
-        sets,
-        reps,
-        oldExe.userId
+      switchMap(exercises => {
+          const updatedExerciseIndex = exercises.findIndex(ex => ex.id === exerciseId);
+          updatedExercises = [...exercises];
+          const oldExe = updatedExercises[updatedExerciseIndex];
+          updatedExercises[updatedExerciseIndex] = new Exercise(
+            oldExe.id,
+            name,
+            weigth,
+            sets,
+            reps,
+            oldExe.userId
+          );
+          return  this.http.put(`https://lift00.firebaseio.com/exercises/${exerciseId}.json`,
+            { ...updatedExercises[updatedExerciseIndex], id: null }
+          );
+      }), tap(() => {
+        this._exercises.next(updatedExercises);
+      })
       );
-      this._exercises.next(updatedExercises);
-    }));
-  }
+    }
 
   cancelEx(exerciseId: string) {
     return this.exercises.pipe(
