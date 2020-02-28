@@ -130,15 +130,27 @@ export class ExercisesService {
     }
 
   cancelEx(exerciseId: string) {
-    return this.exercises.pipe(
-      take(1),
-      tap(exercises => {
-        this._exercises.next(exercises.filter(element => element.id !== exerciseId));
-      })
+    return this.http
+    .delete(`https://lift00.firebaseio.com/exercises/${exerciseId}.json`
+    ).pipe(
+      switchMap(() => {
+        return this.exercises;
+    }),
+    take(1),
+    tap(exercises => {
+      this._exercises.next(exercises.filter(element => element.id !== exerciseId));
+    })
     );
   }
 }
 
+  // cancelEX
+  // return this.exercises.pipe(
+  //   take(1),
+  //   tap(exercises => {
+  //     this._exercises.next(exercises.filter(element => element.id !== exerciseId));
+  //   })
+  // );
 
 
 // [
