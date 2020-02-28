@@ -32,7 +32,8 @@ export class ExercisesService {
     ) { }
 
     fetchExercises() {
-      return this.http.get<{[key: string]: ExerciseFetch}>('https://lift00.firebaseio.com/exercises.json')
+      return this.http.get<{[key: string]: ExerciseFetch}>(`https://lift00.firebaseio.com/exercises.json?orderBy="userId"&equalTo="${
+        this.authService.userId}"`)
       .pipe(map(resData => {
         const Exercisearr = [];
         for (const key in resData) {
