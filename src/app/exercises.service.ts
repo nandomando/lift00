@@ -1,42 +1,26 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Exercise } from './exercise.model';
-import { take, map, tap } from 'rxjs/operators';
+import { take, map, tap, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
 import { HttpClient } from '@angular/common/http';
+
+
+interface ExerciseFetch {
+  name: string;
+  reps: number;
+  sets: number;
+  userId: string;
+  weigth: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class ExercisesService {
 
-  private _exercises = new BehaviorSubject<Exercise[]>([
-    new Exercise(
-      'p1',
-      'bench press',
-      100,
-      5,
-      2,
-      'abc'
-    ),
-    new Exercise(
-      'p2',
-      'squat',
-      100,
-      10,
-      5,
-      'abc'
-    ),
-    new Exercise(
-      'p3',
-      'dumbells',
-      80,
-      4,
-      1,
-      'pp'
-    )
-  ]);
-
+  private _exercises = new BehaviorSubject<Exercise[]>([]);
 
   get exercises() {
     return this._exercises.asObservable();
@@ -46,6 +30,31 @@ export class ExercisesService {
     private authService: AuthService,
     private http: HttpClient,
     ) { }
+
+    fetchExercises() {
+      return this.http.get<{[key: string]: ExerciseFetch}>('https://lift00.firebaseio.com/exercises.json')
+      .pipe(map(resData => {
+        const Exercisearr = [];
+        for (const key in resData) {
+          if (resData.hasOwnProperty(key)) {
+            Exercisearr.push(new Exercise(
+              key,
+              resData[key].name,
+              resData[key].weigth,
+              resData[key].sets,
+              resData[key].reps,
+              resData[key].userId,
+              )
+            );
+          }
+        }
+        return Exercisearr;
+      }),
+      tap(exercises => {
+        this._exercises.next(exercises);
+      })
+      );
+    }
 
 
   getExercise(id: string) {
@@ -63,6 +72,7 @@ export class ExercisesService {
     sets: number,
     reps: number
   ) {
+    let generatedId: string;
     const newExercise = new Exercise(
       Math.random().toString(),
       name,
@@ -72,16 +82,19 @@ export class ExercisesService {
       this.authService.userId
     );
     return this.http
-      .post('https://lift00.firebaseio.com/exercises.json', 
+      .post<{name: string}>('https://lift00.firebaseio.com/exercises.json',
         { ...newExercise, id: null})
-        .pipe(tap(resData => {
-          console.log(resData);
-      }));
-    // return this.exercises.pipe(
-    //   take(1)).subscribe(exercise => {
-    //     this._exercises.next(exercise.concat(newExercise));
-    //   });
-
+        .pipe(
+          switchMap( resData => {
+            generatedId = resData.name;
+            return this.exercises;
+          }),
+          take(1),
+          tap(exercises => {
+            newExercise.id = generatedId;
+            this._exercises.next(exercises.concat(newExercise));
+          })
+          );
   }
 
   updateExe(
@@ -118,3 +131,32 @@ export class ExercisesService {
     );
   }
 }
+
+
+
+// [
+//   new Exercise(
+//     'p1',
+//     'bench press',
+//     100,
+//     5,
+//     2,
+//     'abc'
+//   ),
+//   new Exercise(
+//     'p2',
+//     'squat',
+//     100,
+//     10,
+//     5,
+//     'abc'
+//   ),
+//   new Exercise(
+//     'p3',
+//     'dumbells',
+//     80,
+//     4,
+//     1,
+//     'pp'
+//   )
+// ]

@@ -14,6 +14,7 @@
     <ion-row>
       <ion-col class="ion-text-center" *ngIf="!loadedExercises || loadedExercises.length <= 0">
         <p> Come On Start Working Out!!</p>
+        <ion-spinner color="primary" *ngIf="isLoading"></ion-spinner>
       </ion-col>
       <ion-col *ngIf="loadedExercises && loadedExercises.length > 0">
         <ion-list>

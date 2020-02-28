@@ -13,6 +13,7 @@ import { AuthService } from '../auth/auth.service';
 })
 export class ListPage implements OnInit, OnDestroy {
 
+  isLoading = false;
   loadedExercises: Exercise[];
   private exerciseDestroySub: Subscription;
 
@@ -27,6 +28,13 @@ export class ListPage implements OnInit, OnDestroy {
 
     this.exerciseDestroySub = this.exerciseService.exercises.subscribe(elements => {
       this.loadedExercises = elements;
+    });
+  }
+
+  ionViewWillEnter() {
+    this.isLoading = true;
+    this.exerciseService.fetchExercises().subscribe(() => {
+      this.isLoading = false;
     });
   }
 
