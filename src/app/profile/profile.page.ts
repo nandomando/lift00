@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 
 @Component({
@@ -7,19 +6,15 @@ import { AuthService } from '../auth/auth.service';
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss'],
 })
-export class ProfilePage implements OnInit {
+export class ProfilePage {
 
   constructor(
-    private router: Router,
     private authService: AuthService
   ) { }
 
-  ngOnInit() {
-  }
-
   onLogout() {
     this.authService.logout();
-    this.router.navigateByUrl('auth');
   }
+
 
 }
