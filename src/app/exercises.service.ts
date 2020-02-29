@@ -32,9 +32,16 @@ export class ExercisesService {
     ) { }
 
     fetchExercises() {
-      return this.http.get<{[key: string]: ExerciseFetch}>(`https://lift00.firebaseio.com/exercises.json?orderBy="userId"&equalTo="${
-        this.authService.userId}"`)
-      .pipe(map(resData => {
+      return this.authService.userId.pipe(switchMap(userId => {
+        if (!userId) {
+          throw new Error('User not found!');
+        }
+        return this.http
+        .get<{[key: string]: ExerciseFetch}>(
+          `https://lift00.firebaseio.com/exercises.json?orderBy="userId"&equalTo="${userId}"`
+        );
+      }),
+      map(resData => {
         const Exercisearr = [];
         for (const key in resData) {
           if (resData.hasOwnProperty(key)) {
@@ -74,28 +81,34 @@ export class ExercisesService {
     reps: number
   ) {
     let generatedId: string;
-    const newExercise = new Exercise(
-      Math.random().toString(),
-      name,
-      weigth,
-      sets,
-      reps,
-      this.authService.userId
-    );
-    return this.http
+    let newExercise: Exercise;
+    return this.authService.userId.pipe(take(1),
+    switchMap(userId => {
+      if (!userId) {
+        throw new Error('No user found');
+      }
+      newExercise = new Exercise(
+        Math.random().toString(),
+        name,
+        weigth,
+        sets,
+        reps,
+        userId
+      );
+      return this.http
       .post<{name: string}>('https://lift00.firebaseio.com/exercises.json',
-        { ...newExercise, id: null})
-        .pipe(
-          switchMap( resData => {
-            generatedId = resData.name;
-            return this.exercises;
-          }),
-          take(1),
-          tap(exercises => {
-            newExercise.id = generatedId;
-            this._exercises.next(exercises.concat(newExercise));
-          })
-          );
+        { ...newExercise, id: null});
+    }),
+      switchMap( resData => {
+        generatedId = resData.name;
+        return this.exercises;
+      }),
+      take(1),
+      tap(exercises => {
+        newExercise.id = generatedId;
+        this._exercises.next(exercises.concat(newExercise));
+      })
+      );
   }
 
   updateExe(
