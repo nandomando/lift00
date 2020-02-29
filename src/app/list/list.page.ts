@@ -4,7 +4,6 @@ import { Exercise } from '../exercise.model';
 import { IonItemSliding, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-list',
@@ -20,7 +19,6 @@ export class ListPage implements OnInit, OnDestroy {
   constructor(
     private exerciseService: ExercisesService,
     private router: Router,
-    private authService: AuthService,
     private loadingCtrl: LoadingController
     ) { }
 
@@ -49,10 +47,6 @@ export class ListPage implements OnInit, OnDestroy {
     }
   }
 
-  onLogout() {
-    this.authService.logout();
-    this.router.navigateByUrl('auth');
-  }
 
   onCancelEx(exerciseId: string, slidingItem: IonItemSliding) {
     slidingItem.close();

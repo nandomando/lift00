@@ -21,6 +21,10 @@ const routes: Routes = [
         path: 'add',
         loadChildren: () => import('../addexercise/addexercise.module').then( m => m.AddexercisePageModule)
       },
+      {
+        path: 'profile',
+        loadChildren: () => import('../profile/profile.module').then( m => m.ProfilePageModule)
+      },
     ]
   },
   {
