@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { Exercise } from './exercise.model';
 import { take, map, tap, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
@@ -32,13 +32,19 @@ export class ExercisesService {
     ) { }
 
     fetchExercises() {
+      let fetchedUserId: string;
       return this.authService.userId.pipe(switchMap(userId => {
         if (!userId) {
           throw new Error('User not found!');
         }
+        fetchedUserId = userId;
+        return this.authService.token;
+      }),
+      take(1),
+      switchMap(token => {
         return this.http
         .get<{[key: string]: ExerciseFetch}>(
-          `https://lift00.firebaseio.com/exercises.json?orderBy="userId"&equalTo="${userId}"`
+          `https://lift00.firebaseio.com/exercises.json?orderBy="userId"&equalTo="${fetchedUserId}"&auth=${token}`
         );
       }),
       map(resData => {
@@ -81,10 +87,17 @@ export class ExercisesService {
     reps: number
   ) {
     let generatedId: string;
+    let fetchedUserId: string;
     let newExercise: Exercise;
-    return this.authService.userId.pipe(take(1),
-    switchMap(userId => {
-      if (!userId) {
+    return this.authService.userId.pipe(
+      take(1),
+      switchMap(userId => {
+        fetchedUserId = userId;
+        return this.authService.token;
+      }),
+      take(1),
+    switchMap(token => {
+      if (!fetchedUserId) {
         throw new Error('No user found');
       }
       newExercise = new Exercise(
@@ -93,10 +106,10 @@ export class ExercisesService {
         weigth,
         sets,
         reps,
-        userId
+        fetchedUserId
       );
       return this.http
-      .post<{name: string}>('https://lift00.firebaseio.com/exercises.json',
+      .post<{name: string}>(`https://lift00.firebaseio.com/exercises.json?auth=${token}`,
         { ...newExercise, id: null});
     }),
       switchMap( resData => {
@@ -119,8 +132,21 @@ export class ExercisesService {
     reps: number
   ) {
     let updatedExercises: Exercise[];
-    return this.exercises.pipe(
+    let fetchedToken: string;
+    return this.authService.token.pipe(
       take(1),
+      switchMap(token => {
+        fetchedToken = token;
+        return this.exercises;
+      }),
+      take(1),
+      switchMap(exercises => {
+        if (!exercises || exercises.length <= 0) {
+          return this.fetchExercises();
+        } else {
+          return of(exercises);
+        }
+      }),
       switchMap(exercises => {
           const updatedExerciseIndex = exercises.findIndex(ex => ex.id === exerciseId);
           updatedExercises = [...exercises];
@@ -133,7 +159,7 @@ export class ExercisesService {
             reps,
             oldExe.userId
           );
-          return  this.http.put(`https://lift00.firebaseio.com/exercises/${exerciseId}.json`,
+          return  this.http.put(`https://lift00.firebaseio.com/exercises/${exerciseId}.json?auth=${fetchedToken}`,
             { ...updatedExercises[updatedExerciseIndex], id: null }
           );
       }), tap(() => {
@@ -143,9 +169,13 @@ export class ExercisesService {
     }
 
   cancelEx(exerciseId: string) {
-    return this.http
-    .delete(`https://lift00.firebaseio.com/exercises/${exerciseId}.json`
-    ).pipe(
+    return this.authService.token.pipe(
+      take(1),
+      switchMap(token => {
+        return this.http
+      .delete(`https://lift00.firebaseio.com/exercises/${exerciseId}.json?auth=${token}`
+      );
+      }),
       switchMap(() => {
         return this.exercises;
     }),
